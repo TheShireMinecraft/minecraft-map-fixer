@@ -9,13 +9,15 @@ use Aternos\Nbt\Tag\CompoundTag;
 use Aternos\Nbt\Tag\Tag;
 use Aternos\Nbt\Tag\TagType;
 use Monolog\Handler\StreamHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 require '../vendor/autoload.php';
 
 $logger = new Logger('MinecraftMapFixer');
-$logger->pushHandler(new StreamHandler('../logs/minecraft-map-fixer.log'));
+$logger->pushHandler(new StreamHandler('../logs/minecraft-map-fixer.log', Level::Debug));
+$logger->pushHandler(new StreamHandler('php://stdout', Level::Info));
 
 $directoryToScan = '../assets/';
 $outputDirectory = '../assets/fixed';
