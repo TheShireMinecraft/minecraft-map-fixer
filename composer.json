@@ -1,0 +1,17 @@
+{
+    "name": "theshireminecraft/minecraft-map-fixer",
+    "description": "Fix custom maps broken by updating to MC 1.21.8",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Theshireminecraft\\MinecraftMapFixer\\": "src/"
+        }
+    },
+    "require": {
+        "aternos/nbt": "1.12.1",
+        "monolog/monolog": "^3.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "12.2.1"
+    }
+}
