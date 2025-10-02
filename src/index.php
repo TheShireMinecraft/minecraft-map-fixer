@@ -49,7 +49,7 @@ function fixMapFile(
             'path' => $path,
             'rootTagType' => get_class($rootTag)
         ]);
-        exit;
+        return;
     }
 
     $dataVersion = $rootTag->getInt("DataVersion")?->getValue() ?? 0;
@@ -59,7 +59,7 @@ function fixMapFile(
             'path' => $path,
             'dataVersion' => $dataVersion
         ]);
-        exit;
+        return;
     }
 
     $data = $rootTag->getCompound("data");
@@ -73,7 +73,7 @@ function fixMapFile(
     $dimension = $data->get("dimension");
 
     if ($dimension->getType() === TagType::TAG_String) {
-        exit;
+        return;
     }
 
     // At this point, dataVersion is >4440 and dimension is not a string
@@ -94,7 +94,7 @@ function fixMapFile(
         $logger->error("Unable to write fixed file", [
             'target' => $outPath,
         ]);
-        exit;
+        return;
     }
 
     $logger->info("Successfully fixed map file", [
