@@ -19,19 +19,21 @@ $logger = new Logger('MinecraftMapFixer');
 $logger->pushHandler(new StreamHandler('../logs/minecraft-map-fixer.log', Level::Debug));
 $logger->pushHandler(new StreamHandler('php://stdout', Level::Info));
 
-$directoryToScan = '../assets/';
+$directoryToScan = '../assets';
+$backupDirectory = '../assets/broken';
 $outputDirectory = '../assets/fixed';
 
 // Scan the directory for map_*.dat files and fix each one
-$paths = glob($directoryToScan . 'map_*.dat');
+$paths = glob($directoryToScan . '/map_*.dat');
 foreach ($paths as $path) {
-    fixMapFile($path, $outputDirectory, $logger);
+    fixMapFile($path, $outputDirectory, $backupDirectory, $logger);
 }
 
 // Broken maps have a data version >4440 and a dimension tag that is not a string
 function fixMapFile(
     string $path,
     string $outputDirectory,
+    string $backupDirectory,
     LoggerInterface $logger
 ): void
 {
@@ -57,7 +59,7 @@ function fixMapFile(
     $dataVersion = $rootTag->getInt("DataVersion")?->getValue() ?? 0;
 
     if ($dataVersion <= 4440) {
-        $logger->info("No fix needed for this data version", [
+        $logger->debug("No fix needed for this data version", [
             'path' => $path,
             'dataVersion' => $dataVersion
         ]);
@@ -84,12 +86,14 @@ function fixMapFile(
     $dataVersionTag = $rootTag->getInt("DataVersion");
     $dataVersionTag->setValue(1343);
 
+    $fileName = basename($path);
+    copy($path, $backupDirectory . '/' . $fileName);
+
     // Save the corrected map
     $writer = new GZipCompressedStringWriter();
     $rootTag->write($writer);
     $newFileContent = $writer->getStringData();
 
-    $fileName = basename($path);
     $outPath = $outputDirectory . '/' . $fileName;
     if (file_put_contents($outPath, $newFileContent) === false)
     {
@@ -101,6 +105,7 @@ function fixMapFile(
 
     $logger->info("Successfully fixed map file", [
         'fileName' => $fileName,
-        'newDataVersion' => $dataVersionTag->getValue()
+        'oldDataVersion' => $dataVersion,
+        'newDataVersion' => $dataVersionTag->getValue(),
     ]);
 }
